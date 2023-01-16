@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
 
 class RoleSeeder extends Seeder
 {
@@ -14,11 +15,13 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
+        $full_permissions = Permission::get()->pluck('name');
+
         $data = [
             [
                 'name' => 'admin',
                 'is_default' => true,
-                'permissions' => ['view_general_dashboard', 'view_leave_management_general', 'view_leave_management_leave_type', 'view_leave_management_leave_quota', 'view_attendance_general', 'view_attendance_holiday_calendar', 'view_payroll_general', 'view_payroll_employee_base_salaries', 'view_payroll_payroll_components', 'view_work_report_general', 'view_systems_authentication', 'view_systems_role_management']
+                'permissions' => $full_permissions
             ],
             [
                 'name' => 'employee',
@@ -28,7 +31,7 @@ class RoleSeeder extends Seeder
             [
                 'name' => 'super admin',
                 'is_default' => true,
-                'permissions' => ['view_general_dashboard']
+                'permissions' => $full_permissions
             ]
         ];
 
@@ -43,7 +46,7 @@ class RoleSeeder extends Seeder
                     'is_default' => $value["is_default"],
                 ]);
 
-                $role->givePermissionTo($value['permissions']);
+                $role->syncPermissions($value['permissions']);
             } catch (\Exception $exception) {
                 // Do something when the exception 
             }
