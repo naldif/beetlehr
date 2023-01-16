@@ -1,0 +1,64 @@
+.switch-bpjs > input[type="checkbox"] {
+    display: none;
+}
+
+.switch-bpjs > label {
+    cursor: pointer;
+    height: 0px;
+    position: relative;
+    top: 2px;
+    width: 40px;
+}
+
+.switch-bpjs > label::before {
+    background: rgb(0, 0, 0);
+    box-shadow: inset 0px 0px 10px rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    content: "";
+    height: 16px;
+    margin-top: -8px;
+    position: absolute;
+    opacity: 0.3;
+    transition: all 0.4s ease-in-out;
+    width: 40px;
+}
+
+.switch-bpjs > label::after {
+    background: rgb(255, 255, 255);
+    border-radius: 16px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.3);
+    content: "";
+    height: 24px;
+    left: -4px;
+    margin-top: -8px;
+    position: absolute;
+    transition: all 0.3s ease-in-out;
+    width: 24px;
+}
+
+.switch-bpjs > input[type="checkbox"]:checked + label::before {
+    background: inherit;
+    opacity: 0.5;
+}
+
+.switch-bpjs > input[type="checkbox"]:checked + label::after {
+    background: inherit;
+    left: 20px;
+}
+
+.form-group .required:after {
+    content: " *";
+    color: red;
+}
+.form-group .select:after {
+    content: " *";
+    color: red;
+}
+
+.select2-container {
+    width: 100% !important;
+}
+
+.hidden {
+    display: none !important;
+}
