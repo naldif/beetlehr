@@ -31,7 +31,7 @@ class RunPayrollService
             }
         });
 
-        return $query->paginate(10);
+        return $query->orderBy('id', 'desc')->paginate(10);
     }
 
     public function getPayrollEmployeeData($id, $request)

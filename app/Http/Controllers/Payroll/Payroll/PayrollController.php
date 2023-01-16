@@ -76,7 +76,7 @@ class PayrollController extends AdminBaseController
                 DB::beginTransaction();
                 
                 $allBranches = Branch::get();
-                $payroll_slip = $this->runPayrollService->createSlipPayrollAllPlacement($dates[0]);
+                $payroll_slip = $this->runPayrollService->createSlipPayrollAllPlacement($dates[0], $dates[1]);
 
                 foreach ($allBranches as $branch) {
                     $this->runPayrollService->calculatePayroll($branch->id, $dates[0], $dates[1], $payroll_slip);
