@@ -78,6 +78,7 @@ class Calculate
         $deductionTotal = [];
         foreach ($employeeSlips as $employeeSlip) {
             // Get All Component  
+            $branch_id = $employeeSlip->employee_detail->branch_id;
             $componentsFinal = Component::getComponentPayroll($branch_id, $employeeSlip->employee_id);
             $taxableComponents = Component::getTaxableComponent($branch_id, $employeeSlip->employee_id);
 
@@ -89,7 +90,7 @@ class Calculate
                     'user_id' => $employeeSlip->employee_detail->user_id,
                     'employee_id' => $employeeSlip->employee_id,
                     'baseSalary' => $employeeSlip->amount,
-                    'branch' => $employeeSlip->employee_detail->branch_detail,
+                    'branch_id' => $branch_id,
                 ];
 
                 if ($component->type === 'deduction') {
@@ -139,11 +140,11 @@ class Calculate
 
             if ($payroll_settings['payroll_istaxable'] == 1 && $employeeSlip->employee_detail->ptkp_status_detail !== null) {
                 $taxableResult = self::countFinalAmountTaxable($taxableComponents, $employeeSlip, $start_date, $end_date, $bpjskResult, $bpjstkResult);
-                $updateAmountEmployeeSlip['tax_value'] = $taxableResult;
             } else {
                 $taxableResult = 0;
             }
-
+            
+            $updateAmountEmployeeSlip['tax_value'] = $taxableResult;
             $updateAmountEmployeeSlip['earning_total'] = array_sum(array_column($earningResult, 'amount'));
             $updateAmountEmployeeSlip['deduction_total'] = array_sum(array_column($deductionResult, 'amount')) + $bpjskResult +  $bpjstkResult['JHT'] + $bpjstkResult['JKM'] + $bpjstkResult['JP'] + $bpjstkResult['JKK'] + $taxableResult;
             $updateAmountEmployeeSlip['bpjsk_value'] = $bpjskResult;
@@ -153,15 +154,7 @@ class Calculate
             $updateAmountEmployeeSlip['jkk'] = $bpjstkResult['JKK'];
 
             if ($employeeSlip->amount > 0) {
-                $bpjskValue = $bpjskResult ? $bpjskResult : 0;
-                $jhtValue = $bpjstkResult['JHT'] ? $bpjstkResult['JHT'] : 0;
-                $jkmValue = $bpjstkResult['JKM'] ? $bpjstkResult['JKM'] : 0;
-                $jpValue = $bpjstkResult['JP'] ? $bpjstkResult['JP'] : 0;
-                $jkkValue = $bpjstkResult['JKK'] ? $bpjstkResult['JKK'] : 0;
-                $taxableValue = $taxableResult ? $taxableResult : 0;
-
-                $takeHomePay = round(($employeeSlip->amount + $updateAmountEmployeeSlip['earning_total']) -
-                ($updateAmountEmployeeSlip['deduction_total'] + $bpjskValue + $jhtValue + $jkmValue + $jpValue + $jkkValue +  $taxableValue), 2, PHP_ROUND_HALF_UP);
+                $takeHomePay = round(($employeeSlip->amount + $updateAmountEmployeeSlip['earning_total']) - $updateAmountEmployeeSlip['deduction_total'], 2, PHP_ROUND_HALF_UP);
                 $updateAmountEmployeeSlip['total_amount'] = $takeHomePay;
             } else {
                 $updateAmountEmployeeSlip['total_amount'] = 0;
@@ -208,7 +201,7 @@ class Calculate
             $taxableAmount = round(($slip->amount + $earningTaxableResult) - ($deductionTaxableResult + $bpjskResult +  $bpjstkResult['JHT'] + $bpjstkResult['JKM'] + $bpjstkResult['JP'] + $bpjstkResult['JKK']), 2, PHP_ROUND_HALF_UP);
             $taxableResult = self::PPh21($slip->employee_detail, $taxableAmount);
         } else {
-            $taxableResult = null;
+            $taxableResult = 0;
         }
         
         $updateAmountEmployeeSlip['tax_value'] = $taxableResult;
@@ -357,7 +350,7 @@ class Calculate
                 'user_id' => $employeeSlip->employee_detail->user_id,
                 'employee_id' => $employeeSlip->employee_id,
                 'baseSalary' => $employeeSlip->amount,
-                'branch' => $employeeSlip->employee_detail->branch,
+                'branch_id' => $employeeSlip->employee_detail->branch_id,
             ];
 
             if ($component->type == 'Deduction') {
@@ -421,8 +414,9 @@ class Calculate
         // Init Required Data
         $component = $calculateDataComponent['component'];
         $employee_id = $calculateDataComponent['employee_id'];
+        $branch_id = $calculateDataComponent['branch_id'];
         
-        $amount = self::calculateDefaultAmountComponent($component, $employee_id);
+        $amount = self::calculateDefaultAmountComponent($component, $employee_id, $branch_id);
 
         return $amount;
     }
@@ -435,6 +429,7 @@ class Calculate
         $end_date = $calculateDataComponent['end_date'];
         $user_id = $calculateDataComponent['user_id'];
         $employee_id = $calculateDataComponent['employee_id'];
+        $branch_id = $calculateDataComponent['branch_id'];
 
         if ($component->name === 'Potongan Terlambat' && $component->is_mandatory === 1) {
             $customAttributeLate = $component->custom_attribute;
@@ -446,22 +441,22 @@ class Calculate
                     ->where('is_late_clock_in', 1)->where('total_late_clock_in', '>', $toleranceLate)
                     ->count();
 
-                $componentAmount = self::calculateDefaultAmountComponent($component, $employee_id);
+                $componentAmount = self::calculateDefaultAmountComponent($component, $employee_id, $branch_id);
                 $amount = $componentAmount * $totalCountableLate;
             } else {
                 $amount = 0;
             }
         } else {
-            $amount = self::calculateDefaultAmountComponent($component, $employee_id);
+            $amount = self::calculateDefaultAmountComponent($component, $employee_id, $branch_id);
         }
 
         return $amount;
     }
 
-    public static function calculateDefaultAmountComponent($component, $employee_id)
+    public static function calculateDefaultAmountComponent($component, $employee_id, $branch_id)
     {
         $employeeComponent = $component->employee_components ? $component->employee_components->where('employee_id', $employee_id)->where('status', true)->first() : null;
-        $branchComponent = $component->branch_components ? $component->branch_components->first() : null;
+        $branchComponent = $component->branch_components ? $component->branch_components->where('branch_id', $branch_id)->where('status', true)->first() : null;
         $employeeComponentCheck = isset($employeeComponent) && $employeeComponent->default_amount !== null;
         $branchComponentCheck = isset($branchComponent) && $branchComponent->default_amount !== null;
 

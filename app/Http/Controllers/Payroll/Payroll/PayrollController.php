@@ -74,13 +74,10 @@ class PayrollController extends AdminBaseController
                 DB::commit();
             } else {
                 DB::beginTransaction();
-                
-                $allBranches = Branch::get();
+
                 $payroll_slip = $this->runPayrollService->createSlipPayrollAllPlacement($dates[0], $dates[1]);
 
-                foreach ($allBranches as $branch) {
-                    $this->runPayrollService->calculatePayroll($branch->id, $dates[0], $dates[1], $payroll_slip);
-                }
+                $this->runPayrollService->calculatePayroll(null, $dates[0], $dates[1], $payroll_slip);
 
                 DB::commit();
             }
@@ -162,7 +159,7 @@ class PayrollController extends AdminBaseController
                 'earning_components' => $this->runPayrollService->getEarningEmployeeSlipComponents($id),
                 'deduction_components' => $this->runPayrollService->getDeductionEmployeeSlipComponents($payrollEmployee),
                 'payroll_earning_components' => collect($payrollComponent)->where('type', 'earning')->values()->map(function($q) use($payrollEmployee) {
-                    $value = Calculate::calculateDefaultAmountComponent($q, $payrollEmployee->employee_id);
+                    $value = Calculate::calculateDefaultAmountComponent($q, $payrollEmployee->employee_id, $payrollEmployee->employee_detail->branch_id);
 
                     return [
                         'id' => $q->id,
@@ -175,7 +172,7 @@ class PayrollController extends AdminBaseController
                     ];
                 }),
                 'payroll_deduction_components' => collect($payrollComponent)->where('type', 'deduction')->values()->map(function ($q) use ($payrollEmployee) {
-                    $value = Calculate::calculateDefaultAmountComponent($q, $payrollEmployee->employee_id);
+                    $value = Calculate::calculateDefaultAmountComponent($q, $payrollEmployee->employee_id, $payrollEmployee->employee_detail->branch_id);
 
                     return [
                         'id' => $q->id,

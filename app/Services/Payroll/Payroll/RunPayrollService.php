@@ -183,13 +183,12 @@ class RunPayrollService
 
     public function calculatePayroll($branch_id, $start_date, $end_date, $branch_slip = null)
     {
-        // Get All Required Query
-        $employees = Employee::whereHas('payroll_employee_base_salary')->with(['payroll_employee_base_salary'])->where('branch_id', $branch_id)->get();
-
         // Create Payroll Slip
         if ($branch_slip !== null) {
+            $employees = Employee::whereHas('payroll_employee_base_salary')->with(['payroll_employee_base_salary'])->get();
             $payroll_slip = $branch_slip;
         } else {
+            $employees = Employee::whereHas('payroll_employee_base_salary')->with(['payroll_employee_base_salary'])->where('branch_id', $branch_id)->get();
             $payroll_slip = $this->createSlipPayroll($start_date, $branch_id, $end_date);
         }
 
@@ -266,8 +265,8 @@ class RunPayrollService
         // Validate Earning and Deduction if value null
         $earning_components = $request->earningComponents;
         $deduction_components = $request->deductionComponents;
-        $earning_value_check = collect($earning_components)->where('value', '==', null)->count();
-        $deduction_value_check = collect($deduction_components)->where('value', '==', null)->count();
+        $earning_value_check = collect($earning_components)->whereNull('value')->count();
+        $deduction_value_check = collect($deduction_components)->whereNull('value')->count();
 
         if($earning_value_check > 0 || $deduction_value_check > 0) {
             throw new \Exception('Please fill all value component before save', 400);
