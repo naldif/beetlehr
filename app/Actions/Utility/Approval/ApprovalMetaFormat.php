@@ -34,8 +34,8 @@ class ApprovalMetaFormat
 
         return [
             'requester_name' => $data->requester['name'],
-            'start_date' => Carbon::parse($data->meta_data['start_date'])->format('d F Y'),
-            'end_date' => Carbon::parse($data->meta_data['end_date'])->format('d F Y'),
+            'start_date' => Carbon::parse($data->meta_data['start_date'])->format('Y-m-d'),
+            'end_date' => Carbon::parse($data->meta_data['end_date'])->format('Y-m-d'),
             'duration' => $data->meta_data['duration'],
             'reason' => $data->meta_data['reason'],
             'type_label' => 'Time Off',
