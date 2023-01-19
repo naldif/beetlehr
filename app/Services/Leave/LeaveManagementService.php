@@ -62,7 +62,7 @@ class LeaveManagementService
         }
 
         // Check if leave in requested date range already exists
-        $leaveExists = Leave::where('start_date', '<=', $inputs['start_date'])->where('end_date', '>=', $inputs['end_date'])->where('employee_id', $inputs['employee_id'])->exists();
+        $leaveExists = Leave::where('start_date', '<=', $inputs['start_date'])->where('end_date', '>=', $inputs['end_date'])->where('employee_id', $inputs['employee_id'])->where('status', 'approved')->exists();
 
         if($leaveExists) {
             throw new \Exception("Employee already have submission in this date range", 400);
