@@ -232,11 +232,11 @@ class AttendanceService
         }
 
         $is_late = false;
-        if ((isset($yesterdaySchedule) ? $yesterdaySchedule->shift_detail->is_night_shift == 1 && $convertedDate->format('H:i:s') <= $yesterdaySchedule->shift_detail->end_time : false) && !isset($yesterdayAttendance)) {
+        if ((isset($yesterdaySchedule) ? $yesterdaySchedule->shift_detail->is_night_shift == 1 && $input_date->format('H:i:s') <= $yesterdaySchedule->shift_detail->end_time : false) && !isset($yesterdayAttendance)) {
             $scheduleCheck =  Carbon::createFromFormat('Y-m-d H:i', $yesterdaySchedule->date . ' ' . $yesterdaySchedule->shift_detail->start_time)->format('Y-m-d H:i:s');
             $timeConverted =  Carbon::parse($input_date)->format('Y-m-d H:i:s');
             $timeConverted > $scheduleCheck ? $is_late = true : $is_late = false;
-        } elseif ((isset($yesterdaySchedule) ? $yesterdaySchedule->shift_detail->is_night_shift == 1 && $convertedDate->format('H:i') <= $yesterday_clock_out_tolerance : false) && isset($yesterdayAttendance) ? $yesterdayAttendance->clock_out == null : false) {
+        } elseif ((isset($yesterdaySchedule) ? $yesterdaySchedule->shift_detail->is_night_shift == 1 && $input_date->format('H:i') <= $yesterday_clock_out_tolerance : false) && isset($yesterdayAttendance) ? $yesterdayAttendance->clock_out == null : false) {
             $scheduleCheck =  Carbon::createFromFormat('Y-m-d H:i', Carbon::parse($yesterdaySchedule->date)->addDays(1)->format('Y-m-d') . ' ' . $yesterdaySchedule->shift_detail->end_time)->format('Y-m-d H:i:s');
             $timeConverted =  Carbon::parse($input_date)->format('Y-m-d H:i:s');
             $timeConverted < $scheduleCheck ? $is_late = true : $is_late = false;
