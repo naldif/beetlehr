@@ -19,15 +19,36 @@ ___
 - Multi Approval System
 - Payroll 
 
+## Dashboard Demo
+You could try the demo for Dashboard at  
+https://demo.beetlehr.com   
+
+Email: admin@beetlehr.com   
+Password: rahasia123   
+
+## Mobile App Demo
+Android: https://play.google.com/store/apps/details?id=io.qerja.mobile   
+iOS: https://apps.apple.com/id/app/qerja-io/id1614218184   
+
+Note: The mobile app in the play store and app store is not the latest version, we will update it ASAP, you could find the latest .apk in Telegram Group
+
+Server: https://demo.beetlehr.com   
+Email: testing@beetlehr.com   
+Password: rahasia123  
+
 ## Tech
 
 - Laravel 9 - PHP Framework for building the admin dashboard and mobile api.
 - VueJS 3 - The Progressive JavaScript Framework integrated with laravel and inertia.
 - Tailwind CSS. 
+- Flutter for Mobile App (you could find the repo at https://github.com/beetlehr/beetlehr-mobile)
 
 ## Documentation 
 If you want to know how to install this app, please refer to this [Installation Guide](./installation.md)  
 You can also see the user manual here [User Manual](./user-manual.md)
+
+## Community & Group Discussion 
+You could join us at Telegram Group https://t.me/+Fbaf_eCVHEg4NTY1
 
 ## Contributing
 We are very glad if you want to contribute and join our community.
